@@ -128,7 +128,10 @@ func (flo *FileResultLogger) RequestResponse(c string, dt string) string {
 
 // GetResultLogger function for getting log result
 func GetResultLogger() ResultLogger {
-	base := os.Getenv("STORAGE_DIR") + "/logs/"
+	base := os.Getenv("LOG_DIR")
+	if base == "" {
+		base = os.Getenv("STORAGE_DIR") + "/logs/"
+	}
 	return newFileResultLogger(base)
 }
 
