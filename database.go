@@ -99,8 +99,8 @@ func GetReadDB() *gorm.DB {
 func CreateDBConnection(descriptor string) *gorm.DB {
 	db, err := gorm.Open("postgres", descriptor)
 	if err != nil {
-		log.Fatal(err)
 		defer db.Close()
+		return db
 	}
 
 	maxOpenCons, _ := strconv.Atoi(os.Getenv("DB_MAX_OPEN_CONS"))
