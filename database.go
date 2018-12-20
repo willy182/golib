@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
+
+	"strconv"
 
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/bmizerany/pq"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 // dbWrite dbRead dbLogger: variable for database
@@ -17,6 +19,7 @@ var (
 	dbWrite, dbRead *gorm.DB
 	dbLogger        *log.Logger
 	isDebug         bool
+	dbReadMu        sync.Mutex
 )
 
 // DBLogFormatter database log formatter
@@ -85,6 +88,9 @@ func GetWriteDB() *gorm.DB {
 
 // GetReadDB function to get reading access to database
 func GetReadDB() *gorm.DB {
+	dbReadMu.Lock()
+	defer dbReadMu.Unlock()
+
 	if dbRead == nil {
 		//dbRead = CreateDBConnection(os.Getenv("DB_READ"))
 		dbRead = CreateDBConnection(fmt.Sprintf("host=%s user=%s "+
