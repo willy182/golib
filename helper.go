@@ -19,7 +19,7 @@ const (
 	urlPort      string = `(:(\d{1,5}))`
 	urlIP        string = `([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))`
 	urlSubdomain string = `((www\.)|([a-zA-Z0-9]([-\.][-\._a-zA-Z0-9]+)*))`
-	url          string = `^` + urlSchema + `?` + urlUsername + `?` + `((` + urlIP + `|(\[` + ip + `\])|(([a-zA-Z0-9]([a-zA-Z0-9-_]+)?[a-zA-Z0-9]([-\.][a-zA-Z0-9]+)*)|(` + urlSubdomain + `?))?(([a-zA-Z\x{00a1}-\x{ffff}0-9]+-?-?)*[a-zA-Z\x{00a1}-\x{ffff}0-9]+)(?:\.([a-zA-Z\x{00a1}-\x{ffff}]{1,}))?))\.?` + urlPort + `?` + urlPath + `?$`
+	urlPattern   string = `^` + urlSchema + `?` + urlUsername + `?` + `((` + urlIP + `|(\[` + ip + `\])|(([a-zA-Z0-9]([a-zA-Z0-9-_]+)?[a-zA-Z0-9]([-\.][a-zA-Z0-9]+)*)|(` + urlSubdomain + `?))?(([a-zA-Z\x{00a1}-\x{ffff}0-9]+-?-?)*[a-zA-Z\x{00a1}-\x{ffff}0-9]+)(?:\.([a-zA-Z\x{00a1}-\x{ffff}]{1,}))?))\.?` + urlPort + `?` + urlPath + `?$`
 	area         string = `^\+\d{1,5}$`
 	phone        string = `^\d{5,}$`
 	alphaNumeric string = `^[A-Za-z0-9][A-Za-z0-9 ._-]*$`
@@ -36,7 +36,7 @@ var (
 	// emailRegexp regex for validate email
 	emailRegexp = regexp.MustCompile(email)
 	// urlRegexp regex for validate URL
-	urlRegexp = regexp.MustCompile(url)
+	urlRegexp = regexp.MustCompile(urlPattern)
 	// areaRegexp  regex for phone area number using +
 	areaRegexp = regexp.MustCompile(area)
 	// telpRegexp regex for phone number
