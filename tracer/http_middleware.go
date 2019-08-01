@@ -32,6 +32,7 @@ func Middleware(h http.Handler) http.Handler {
 		span.SetTag("body", string(body))
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(body)) // reuse body
 
+		span.SetTag("http.headers", req.Header)
 		ext.HTTPUrl.Set(span, req.Host+req.RequestURI)
 		ext.HTTPMethod.Set(span, req.Method)
 
