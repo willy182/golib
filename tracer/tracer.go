@@ -95,8 +95,8 @@ func Log(ctx context.Context, event string, payload ...interface{}) {
 	}
 }
 
-// WithTrace closure
-func WithTrace(ctx context.Context, operationName string, tags map[string]interface{}, f func()) {
+// WithTrace closure with child context
+func WithTrace(ctx context.Context, operationName string, tags map[string]interface{}, f func(childCtx context.Context)) {
 	t := StartTrace(ctx, operationName)
 	defer func() {
 		if r := recover(); r != nil {
@@ -105,7 +105,7 @@ func WithTrace(ctx context.Context, operationName string, tags map[string]interf
 		t.Finish(tags)
 	}()
 
-	f()
+	f(t.NewChildContext())
 }
 
 func toString(v interface{}) (s string) {
