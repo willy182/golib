@@ -9,7 +9,7 @@ import (
 
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	_ "github.com/bmizerany/pq"
 	"github.com/jinzhu/gorm"
 )
