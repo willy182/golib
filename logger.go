@@ -95,7 +95,7 @@ func LogContext(c string, s string) *log.Entry {
 // message string message of log
 // context string context of log
 // scope string scope of log
-func Log(level log.Level, message string, context string, scope string) {
+func Log(level Level, message string, context string, scope string) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println(r)
@@ -113,17 +113,17 @@ func Log(level log.Level, message string, context string, scope string) {
 
 	entry := LogContext(context, scope)
 	switch level {
-	case log.DebugLevel:
+	case DebugLevel:
 		entry.Debug(message)
-	case log.InfoLevel:
+	case InfoLevel:
 		entry.Info(message)
-	case log.WarnLevel:
+	case WarnLevel:
 		entry.Warn(message)
-	case log.ErrorLevel:
+	case ErrorLevel:
 		entry.Error(message)
-	case log.FatalLevel:
+	case FatalLevel:
 		entry.Fatal(message)
-	case log.PanicLevel:
+	case PanicLevel:
 		entry.Panic(message)
 	}
 }
