@@ -29,7 +29,7 @@ type ExampleModel struct {
 	OrderID string `json:"orderId"`
 }
 
-func TestNewHTTPResponse(t *testing.T) {
+func TestNewHTTPResponseV2(t *testing.T) {
 	multiError := NewMultiError()
 	multiError.Append("test", fmt.Errorf("error test"))
 	type args struct {
@@ -105,22 +105,22 @@ func TestNewHTTPResponse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewHTTPResponse(tt.args.code, tt.args.message, tt.args.params...)
+			got := NewHTTPResponseV2(tt.args.code, tt.args.message, tt.args.params...)
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("\x1b[31;1mNewHTTPResponse() = %v, \nwant => %v\x1b[0m", got, tt.want)
+				t.Errorf("\x1b[31;1mNewHTTPResponseV2() = %v, \nwant => %v\x1b[0m", got, tt.want)
 			}
 		})
 	}
 }
 
 func TestHTTPResponse_JSON(t *testing.T) {
-	resp := NewHTTPResponse(200, "success")
+	resp := NewHTTPResponseV2(200, "success")
 	w := new(writer)
 	assert.NoError(t, resp.JSON(w))
 }
 
 func TestHTTPResponse_XML(t *testing.T) {
-	resp := NewHTTPResponse(200, "success")
+	resp := NewHTTPResponseV2(200, "success")
 	w := new(writer)
 	assert.NoError(t, resp.XML(w))
 }

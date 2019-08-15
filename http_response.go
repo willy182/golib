@@ -33,8 +33,8 @@ type (
 	}
 )
 
-// NewHTTPResponse for create common response, data must in first params and meta in second params
-func NewHTTPResponse(code int, message string, params ...interface{}) HTTPResponse {
+// NewHTTPResponseV2 for create common response, data must in first params and meta in second params
+func NewHTTPResponseV2(code int, message string, params ...interface{}) HTTPResponse {
 	commonResponse := new(httpResponse)
 
 	for _, param := range params {
