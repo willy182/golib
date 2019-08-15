@@ -8,6 +8,8 @@ import (
 )
 
 const (
+	// ErrorDataNotFound error message when data doesn't exist
+	ErrorDataNotFound = "data tidak ditemukan"
 	// CHARS for setting short random string
 	CHARS = "abcdefghijklmnopqrstuvwxyz0123456789"
 	// this block is for validating URL format
