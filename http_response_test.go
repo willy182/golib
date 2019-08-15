@@ -3,19 +3,33 @@ package golib
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"reflect"
 	"testing"
 
-	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 )
+
+// writer implement http.ResponseWriter
+type writer struct {
+	http.ResponseWriter
+}
+
+func (w *writer) Header() http.Header {
+	return http.Header{}
+}
+
+func (w *writer) WriteHeader(code int) {
+}
+
+func (w *writer) Write(b []byte) (int, error) {
+	return len(b), nil
+}
 
 type ExampleModel struct {
 	OrderID string `json:"orderId"`
 }
 
-func TestEchoHTTPResponseV2(t *testing.T) {
+func TestNewHTTPResponse(t *testing.T) {
 	multiError := NewMultiError()
 	multiError.Append("test", fmt.Errorf("error test"))
 	type args struct {
@@ -91,32 +105,22 @@ func TestEchoHTTPResponseV2(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := EchoHTTPResponseV2(tt.args.code, tt.args.message, tt.args.params...)
+			got := NewHTTPResponse(tt.args.code, tt.args.message, tt.args.params...)
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("\x1b[31;1mEchoHTTPResponseV2() = %v, \nwant => %v\x1b[0m", got, tt.want)
+				t.Errorf("\x1b[31;1mNewHTTPResponse() = %v, \nwant => %v\x1b[0m", got, tt.want)
 			}
 		})
 	}
 }
 
 func TestHTTPResponse_JSON(t *testing.T) {
-	e := echo.New()
-	req, err := http.NewRequest(echo.GET, "/testing", nil)
-	assert.NoError(t, err)
-
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	resp := EchoHTTPResponseV2(200, "success")
-	assert.NoError(t, resp.JSON(c))
+	resp := NewHTTPResponse(200, "success")
+	w := new(writer)
+	assert.NoError(t, resp.JSON(w))
 }
 
 func TestHTTPResponse_XML(t *testing.T) {
-	e := echo.New()
-	req, err := http.NewRequest(echo.GET, "/testing", nil)
-	assert.NoError(t, err)
-
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	resp := EchoHTTPResponseV2(200, "success")
-	assert.NoError(t, resp.XML(c))
+	resp := NewHTTPResponse(200, "success")
+	w := new(writer)
+	assert.NoError(t, resp.XML(w))
 }

@@ -1,17 +1,16 @@
 package golib
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"net/http"
 	"reflect"
-
-	"github.com/labstack/echo"
 )
 
 // HTTPResponse abstract interface
 type HTTPResponse interface {
-	JSON(c echo.Context) error
-	XML(c echo.Context) error
+	JSON(w http.ResponseWriter) error
+	XML(w http.ResponseWriter) error
 }
 
 type (
@@ -32,17 +31,10 @@ type (
 		TotalRecords int `json:"totalRecords"`
 		TotalPages   int `json:"totalPages"`
 	}
-
-	// NavResponse xml model for nav response
-	NavResponse struct {
-		XMLName xml.Name `xml:"http://schemas.xmlsoap.org/soap/envelope/ ReturnValue"`
-
-		Message string `xml:"Message"`
-	}
 )
 
-// EchoHTTPResponseV2 for create common response, data must in first params and meta in second params
-func EchoHTTPResponseV2(code int, message string, params ...interface{}) HTTPResponse {
+// NewHTTPResponse for create common response, data must in first params and meta in second params
+func NewHTTPResponse(code int, message string, params ...interface{}) HTTPResponse {
 	commonResponse := new(httpResponse)
 
 	for _, param := range params {
@@ -53,12 +45,11 @@ func EchoHTTPResponseV2(code int, message string, params ...interface{}) HTTPRes
 		}
 		param = refValue.Interface()
 
-		switch param.(type) {
+		switch val := param.(type) {
 		case Meta:
-			commonResponse.Meta = param
+			commonResponse.Meta = val
 		case MultiError:
-			multiError := param.(MultiError)
-			commonResponse.Errors = multiError.ToMap()
+			commonResponse.Errors = val.ToMap()
 		default:
 			commonResponse.Data = param
 		}
@@ -74,12 +65,22 @@ func EchoHTTPResponseV2(code int, message string, params ...interface{}) HTTPRes
 	return commonResponse
 }
 
-// JSON for set http JSON response (Content-Type: application/json)
-func (resp *httpResponse) JSON(c echo.Context) error {
-	return c.JSON(resp.Code, resp)
+// JSON for set http JSON response (Content-Type: application/json) with parameter is http response writer
+func (resp *httpResponse) JSON(w http.ResponseWriter) error {
+	if resp.Data == nil {
+		resp.Data = struct{}{}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.Code)
+	return json.NewEncoder(w).Encode(resp)
 }
 
 // XML for set http XML response (Content-Type: application/xml)
-func (resp *httpResponse) XML(c echo.Context) error {
-	return c.XML(resp.Code, resp)
+func (resp *httpResponse) XML(w http.ResponseWriter) error {
+	if resp.Data == nil {
+		resp.Data = struct{}{}
+	}
+	w.Header().Set("Content-Type", "application/xml")
+	w.WriteHeader(resp.Code)
+	return xml.NewEncoder(w).Encode(resp)
 }
