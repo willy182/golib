@@ -14,8 +14,8 @@ type HTTPResponse interface {
 }
 
 type (
-	// httpResponse model
-	httpResponse struct {
+	// ResponseV2 model
+	ResponseV2 struct {
 		Success bool        `json:"success"`
 		Code    int         `json:"code"`
 		Message string      `json:"message"`
@@ -35,7 +35,7 @@ type (
 
 // NewHTTPResponseV2 for create common response, data must in first params and meta in second params
 func NewHTTPResponseV2(code int, message string, params ...interface{}) HTTPResponse {
-	commonResponse := new(httpResponse)
+	commonResponse := new(ResponseV2)
 
 	for _, param := range params {
 		// get value param if type is pointer
@@ -66,7 +66,7 @@ func NewHTTPResponseV2(code int, message string, params ...interface{}) HTTPResp
 }
 
 // JSON for set http JSON response (Content-Type: application/json) with parameter is http response writer
-func (resp *httpResponse) JSON(w http.ResponseWriter) error {
+func (resp *ResponseV2) JSON(w http.ResponseWriter) error {
 	if resp.Data == nil {
 		resp.Data = struct{}{}
 	}
@@ -76,7 +76,7 @@ func (resp *httpResponse) JSON(w http.ResponseWriter) error {
 }
 
 // XML for set http XML response (Content-Type: application/xml)
-func (resp *httpResponse) XML(w http.ResponseWriter) error {
+func (resp *ResponseV2) XML(w http.ResponseWriter) error {
 	if resp.Data == nil {
 		resp.Data = struct{}{}
 	}

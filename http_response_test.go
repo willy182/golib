@@ -40,7 +40,7 @@ func TestNewHTTPResponseV2(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *httpResponse
+		want *ResponseV2
 	}{
 		{
 			name: "Testcase #1: Response data list (include meta)",
@@ -52,7 +52,7 @@ func TestNewHTTPResponseV2(t *testing.T) {
 					Meta{Page: 1, Limit: 10, TotalPages: 10, TotalRecords: 100},
 				},
 			},
-			want: &httpResponse{
+			want: &ResponseV2{
 				Success: true,
 				Code:    200,
 				Message: "Fetch all data",
@@ -69,7 +69,7 @@ func TestNewHTTPResponseV2(t *testing.T) {
 					ExampleModel{OrderID: "061499700032"},
 				},
 			},
-			want: &httpResponse{
+			want: &ResponseV2{
 				Success: true,
 				Code:    200,
 				Message: "Get detail data",
@@ -82,7 +82,7 @@ func TestNewHTTPResponseV2(t *testing.T) {
 				code:    http.StatusOK,
 				message: "list data empty",
 			},
-			want: &httpResponse{
+			want: &ResponseV2{
 				Success: true,
 				Code:    200,
 				Message: "list data empty",
@@ -95,7 +95,7 @@ func TestNewHTTPResponseV2(t *testing.T) {
 				message: "id cannot be empty",
 				params:  []interface{}{multiError},
 			},
-			want: &httpResponse{
+			want: &ResponseV2{
 				Success: false,
 				Code:    400,
 				Message: "id cannot be empty",
