@@ -3,7 +3,6 @@ package tracer
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -74,9 +73,6 @@ func Log(ctx context.Context, event string, payload ...interface{}) {
 func WithTrace(ctx context.Context, operationName string, tags map[string]interface{}, f func(context.Context)) {
 	t := StartTrace(ctx, operationName)
 	defer func() {
-		if r := recover(); r != nil {
-			Log(ctx, operationName, fmt.Errorf("panic: %v", r))
-		}
 		t.Finish(tags)
 	}()
 
