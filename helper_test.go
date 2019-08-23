@@ -3,6 +3,8 @@ package golib
 import (
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRandomString(t *testing.T) {
@@ -131,4 +133,83 @@ func TestValidateAlphaNumeric(t *testing.T) {
 	if ValidateAlphaNumeric(alpha) {
 		t.Fatal("testing 2nd invalid alpha numeric is not valid")
 	}
+}
+
+func TestValidateNumeric(t *testing.T) {
+	t.Run("Test Validate Numeric", func(t *testing.T) {
+		boolFalse := ValidateNumeric("1.0.1")
+		assert.False(t, boolFalse)
+
+		boolTrue := ValidateNumeric("0123456789")
+		assert.True(t, boolTrue)
+	})
+}
+
+func TestValidateAlphabet(t *testing.T) {
+	t.Run("Test Validate Alphabet", func(t *testing.T) {
+		boolTrue := ValidateAlphabet("huFtBanGeT")
+		assert.True(t, boolTrue)
+
+		boolFalse := ValidateAlphabet("1FgH^*")
+		assert.False(t, boolFalse)
+	})
+}
+
+func TestValidateAlphabetWithSpace(t *testing.T) {
+	t.Run("Test Validate Alphabet With Space", func(t *testing.T) {
+		boolFalse := ValidateAlphabetWithSpace("huFtBanGeT*")
+		assert.False(t, boolFalse)
+
+		boolTrue := ValidateAlphabetWithSpace("huFt BanGeT")
+		assert.True(t, boolTrue)
+	})
+}
+
+func TestValidateAlphanumeric(t *testing.T) {
+	t.Run("Test Validate Alphabet Numeric", func(t *testing.T) {
+		boolTrue := ValidateAlphanumeric("okesip12", true)
+		assert.True(t, boolTrue)
+
+		boolTrue = ValidateAlphanumeric("okesip", false)
+		assert.True(t, boolTrue)
+
+		boolFalse := ValidateAlphanumeric("1FgH^*", false)
+		assert.False(t, boolFalse)
+	})
+}
+
+func TestValidateAlphanumericWithSpace(t *testing.T) {
+	t.Run("Test Validate Alphabet Numeric With Space", func(t *testing.T) {
+		boolTrue := ValidateAlphanumericWithSpace("oke sip1", false)
+		assert.True(t, boolTrue)
+
+		boolTrue = ValidateAlphanumericWithSpace("OKE sip1", false)
+		assert.True(t, boolTrue)
+
+		boolFalse := ValidateAlphanumericWithSpace("okesip1", true)
+		assert.False(t, boolFalse)
+
+		boolFalse = ValidateAlphanumericWithSpace("okesip1@", true)
+		assert.False(t, boolFalse)
+	})
+}
+
+func TestGenerateRandomID(t *testing.T) {
+	t.Run("Test Generate Random ID", func(t *testing.T) {
+		var res string
+		randomID := GenerateRandomID(5)
+		assert.IsType(t, res, randomID)
+
+		randomID = GenerateRandomID(5, "00")
+		assert.IsType(t, res, randomID)
+	})
+}
+
+func TestRandomNumber(t *testing.T) {
+	t.Run("Test Generate Random Number", func(t *testing.T) {
+		var res string
+		randomNumber := RandomNumber(5)
+
+		assert.IsType(t, res, randomNumber)
+	})
 }

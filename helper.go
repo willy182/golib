@@ -2,8 +2,10 @@ package golib
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -12,6 +14,9 @@ const (
 	ErrorDataNotFound = "data tidak ditemukan"
 	// CHARS for setting short random string
 	CHARS = "abcdefghijklmnopqrstuvwxyz0123456789"
+	// NUMBERS for setting short random number
+	NUMBERS = "0123456789"
+
 	// this block is for validating URL format
 	email        string = "^(((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$"
 	ip           string = `(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))`
@@ -46,19 +51,6 @@ var (
 	// alphaNumericRegexp regex for validate uri
 	alphaNumericRegexp = regexp.MustCompile(alphaNumeric)
 )
-
-// RandomString function for creating randomized string
-// length int to set length of string
-func RandomString(length int) string {
-	rand.Seed(time.Now().UTC().UnixNano())
-
-	charsLength := len(CHARS)
-	result := make([]byte, length)
-	for i := 0; i < length; i++ {
-		result[i] = CHARS[rand.Intn(charsLength)]
-	}
-	return string(result)
-}
 
 // ValidateEmail function for validating email
 func ValidateEmail(email string) error {
@@ -98,4 +90,157 @@ func ValidateAlphaNumeric(str string) bool {
 		return false
 	}
 	return true
+}
+
+// ValidateNumeric function for check valid numeric
+func ValidateNumeric(str string) bool {
+	var num, symbol int
+	for _, r := range str {
+		if r >= 48 && r <= 57 { //code ascii for [0-9]
+			num = +1
+		} else {
+			symbol = +1
+		}
+	}
+
+	if symbol > 0 {
+		return false
+	}
+
+	return num >= 1
+}
+
+// ValidateAlphabet function for check alphabet
+func ValidateAlphabet(str string) bool {
+	var uppercase, lowercase, symbol int
+	for _, r := range str {
+		if r >= 65 && r <= 90 { //code ascii for [A-Z]
+			uppercase = +1
+		} else if r >= 97 && r <= 122 { //code ascii for [a-z]
+			lowercase = +1
+		} else { //except alphabet
+			symbol = +1
+		}
+	}
+
+	if symbol > 0 {
+		return false
+	}
+	return uppercase >= 1 || lowercase >= 1
+}
+
+// ValidateAlphabetWithSpace function for check alphabet with space
+func ValidateAlphabetWithSpace(str string) bool {
+	var uppercase, lowercase, space, symbol int
+	for _, r := range str {
+		if r >= 65 && r <= 90 { //code ascii for [A-Z]
+			uppercase = +1
+		} else if r >= 97 && r <= 122 { //code ascii for [a-z]
+			lowercase = +1
+		} else if r == 32 { //code ascii for space
+			space = +1
+		} else { //except alphabet
+			symbol = +1
+		}
+	}
+
+	if symbol > 0 {
+		return false
+	}
+	return uppercase >= 1 || lowercase >= 1 || space >= 1
+}
+
+// ValidateAlphanumeric function for check valid alphanumeric
+func ValidateAlphanumeric(str string, must bool) bool {
+	var uppercase, lowercase, num, symbol int
+	for _, r := range str {
+		if r >= 65 && r <= 90 { //code ascii for [A-Z]
+			uppercase = +1
+		} else if r >= 97 && r <= 122 { //code ascii for [a-z]
+			lowercase = +1
+		} else if r >= 48 && r <= 57 { //code ascii for [0-9]
+			num = +1
+		} else {
+			symbol = +1
+		}
+	}
+
+	if symbol > 0 {
+		return false
+	}
+
+	if must { //must alphanumeric
+		return (uppercase >= 1 || lowercase >= 1) && num >= 1
+	}
+
+	return uppercase >= 1 || lowercase >= 1 || num >= 1
+}
+
+// ValidateAlphanumericWithSpace function for validating string to alpha numeric with space
+func ValidateAlphanumericWithSpace(str string, must bool) bool {
+	var uppercase, lowercase, num, space, symbol int
+	for _, r := range str {
+		if r >= 65 && r <= 90 { //code ascii for [A-Z]
+			uppercase = +1
+		} else if r >= 97 && r <= 122 { //code ascii for [a-z]
+			lowercase = +1
+		} else if r >= 48 && r <= 57 { //code ascii for [0-9]
+			num = +1
+		} else if r == 32 { //code ascii for space
+			space = +1
+		} else {
+			symbol = +1
+		}
+	}
+
+	if symbol > 0 {
+		return false
+	}
+
+	if must { //must alphanumeric
+		return (uppercase >= 1 || lowercase >= 1) && num >= 1 && space >= 1
+	}
+
+	return (uppercase >= 1 || lowercase >= 1 || num >= 1) || space >= 1
+}
+
+// GenerateRandomID function for generating shipping ID
+func GenerateRandomID(length int, prefix ...string) string {
+	var strPrefix string
+
+	if len(prefix) > 0 {
+		strPrefix = prefix[0]
+	}
+
+	yearNow, monthNow, _ := time.Now().Date()
+	year := strconv.Itoa(yearNow)[2:len(strconv.Itoa(yearNow))]
+	month := int(monthNow)
+	RandomString := RandomString(length)
+
+	id := fmt.Sprintf("%s%s%d%s", strPrefix, year, month, RandomString)
+	return id
+}
+
+// RandomString function for random string
+func RandomString(length int) string {
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	charsLength := len(CHARS)
+	result := make([]byte, length)
+	for i := 0; i < length; i++ {
+		result[i] = CHARS[rand.Intn(charsLength)]
+	}
+	return string(result)
+}
+
+// RandomNumber function for random number
+func RandomNumber(length int) string {
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	charsLength := len(NUMBERS)
+	result := make([]byte, length)
+	for i := 0; i < length; i++ {
+		result[i] = NUMBERS[rand.Intn(charsLength)]
+	}
+	return string(result)
 }
