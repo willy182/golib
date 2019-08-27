@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"strings"
 )
 
 // BindQueryParam binding query param from HTTP context to struct model with key in json tag
@@ -19,6 +20,7 @@ func BindQueryParam(u *url.URL, target interface{}) error {
 		field := refValue.Field(i)
 
 		jsonTag := refValue.Type().Field(i).Tag.Get("json")
+		jsonTag = strings.TrimSuffix(jsonTag, ",omitempty")
 		field.SetString(q.Get(jsonTag))
 	}
 	return nil

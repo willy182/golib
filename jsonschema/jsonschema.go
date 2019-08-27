@@ -2,8 +2,12 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
+	"reflect"
 	"strings"
 
 	"github.com/Bhinneka/golib"
@@ -14,34 +18,65 @@ var jsonSchemaList = map[string]*gojsonschema.Schema{}
 
 // Load all schema
 func Load(path string) error {
-	files, err := ioutil.ReadDir(path)
-	if err != nil {
-		return err
-	}
-	for _, f := range files {
-		fileName := f.Name()
+	return filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		fileName := info.Name()
 		if strings.HasSuffix(fileName, ".json") {
-			s, err := ioutil.ReadFile(path + "/" + fileName)
+			s, err := ioutil.ReadFile(p)
 			if err != nil {
 				return err
 			}
 
-			var data map[string]interface{}
+			var data interface{}
 			err = json.Unmarshal(s, &data)
 			if err != nil {
 				return err
 			}
-			id, ok := data["id"].(string)
-			if !ok {
-				return fmt.Errorf("id not found in schema %s", fileName)
-			}
-			jsonSchemaList[id], err = gojsonschema.NewSchema(gojsonschema.NewBytesLoader(s))
-			if err != nil {
-				return err
+
+			t := reflect.ValueOf(data)
+			if t.Kind() == reflect.Slice {
+				for i := 0; i < t.Len(); i++ {
+					obj := t.Index(i).Interface()
+					id, err := getID(obj)
+					if err != nil {
+						continue
+					}
+					jsonSchemaList[id], err = gojsonschema.NewSchema(gojsonschema.NewBytesLoader(s))
+					if err != nil {
+						continue
+					}
+				}
+			} else {
+				id, err := getID(data)
+				if err != nil {
+					return nil
+				}
+				jsonSchemaList[id], err = gojsonschema.NewSchema(gojsonschema.NewBytesLoader(s))
+				if err != nil {
+					return nil
+				}
 			}
 		}
+		return nil
+	})
+}
+
+func getID(obj interface{}) (id string, err error) {
+	m, ok := obj.(map[string]interface{})
+	if !ok {
+		err = errors.New("invalid type")
+		return
 	}
-	return nil
+	id, ok = m["id"].(string)
+	if !ok {
+		err = errors.New("ID not found in schema")
+	}
+	return
 }
 
 // Get json schema by ID
@@ -55,7 +90,7 @@ func Get(schemaID string) (*gojsonschema.Schema, error) {
 }
 
 // Validate from Go data type
-func Validate(schemaID string, input interface{}) *golib.MultiError {
+func Validate(schemaID string, input interface{}) error {
 	multiError := golib.NewMultiError()
 
 	schema, err := Get(schemaID)
@@ -69,7 +104,7 @@ func Validate(schemaID string, input interface{}) *golib.MultiError {
 }
 
 // ValidateDocument document
-func ValidateDocument(schemaID string, jsonByte []byte) *golib.MultiError {
+func ValidateDocument(schemaID string, jsonByte []byte) error {
 	multiError := golib.NewMultiError()
 
 	schema, err := Get(schemaID)
