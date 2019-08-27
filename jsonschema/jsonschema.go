@@ -117,7 +117,7 @@ func ValidateDocument(schemaID string, jsonByte []byte) error {
 	return validate(schema, document)
 }
 
-func validate(schema *gojsonschema.Schema, document gojsonschema.JSONLoader) *golib.MultiError {
+func validate(schema *gojsonschema.Schema, document gojsonschema.JSONLoader) error {
 	multiError := golib.NewMultiError()
 
 	result, err := schema.Validate(document)
