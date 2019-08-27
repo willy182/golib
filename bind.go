@@ -21,7 +21,7 @@ func BindQueryParam(u *url.URL, target interface{}) error {
 
 		jsonTag := refValue.Type().Field(i).Tag.Get("json")
 		jsonTag = strings.TrimSuffix(jsonTag, ",omitempty")
-		field.SetString(q.Get(jsonTag))
+		field.SetString(url.QueryEscape(q.Get(jsonTag)))
 	}
 	return nil
 }
