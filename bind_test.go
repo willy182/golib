@@ -45,6 +45,15 @@ func TestBindQueryParam(t *testing.T) {
 			},
 			wantError: true, wantEqual: false,
 		},
+		{
+			name:       "Testcase #4: Positive",
+			queryParam: "orderId=0001&soNumber=2019:08:28T00:00:00+07:00",
+			target:     new(exampleParam),
+			wantResult: exampleParam{
+				OrderID: "0001", SoNumber: "2019:08:28T00:00:00+07:00",
+			},
+			wantEqual: true,
+		},
 	}
 
 	for _, tt := range tests {

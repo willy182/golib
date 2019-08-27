@@ -14,14 +14,20 @@ func BindQueryParam(u *url.URL, target interface{}) error {
 		return fmt.Errorf("target is not pointer")
 	}
 	refValue = refValue.Elem()
-	q := u.Query()
+	q := make(map[string]string)
+	for _, r := range strings.Split(u.RawQuery, "&") {
+		sp := strings.Split(r, "=")
+		if len(sp) > 1 {
+			q[sp[0]] = sp[1]
+		}
+	}
 
 	for i := 0; i < refValue.NumField(); i++ {
 		field := refValue.Field(i)
 
 		jsonTag := refValue.Type().Field(i).Tag.Get("json")
 		jsonTag = strings.TrimSuffix(jsonTag, ",omitempty")
-		field.SetString(url.QueryEscape(q.Get(jsonTag)))
+		field.SetString(q[jsonTag])
 	}
 	return nil
 }
