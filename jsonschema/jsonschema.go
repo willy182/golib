@@ -46,7 +46,7 @@ func Load(path string) error {
 					if err != nil {
 						continue
 					}
-					jsonSchemaList[id], err = gojsonschema.NewSchema(gojsonschema.NewBytesLoader(s))
+					jsonSchemaList[id], err = gojsonschema.NewSchema(gojsonschema.NewGoLoader(obj))
 					if err != nil {
 						continue
 					}
