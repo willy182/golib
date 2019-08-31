@@ -213,3 +213,41 @@ func TestRandomNumber(t *testing.T) {
 		assert.IsType(t, res, randomNumber)
 	})
 }
+
+func TestStringInSlice(t *testing.T) {
+	var positiveStr = "mantab"
+	var positiveStrCheck = "mantul"
+	type args struct {
+		str           string
+		list          []string
+		caseSensitive []bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "Testcase #1: Positive",
+			args: args{str: positiveStr, list: []string{positiveStr, positiveStrCheck}},
+			want: true,
+		},
+		{
+			name: "Testcase #2: Positive",
+			args: args{str: positiveStr, list: []string{positiveStr, positiveStrCheck}, caseSensitive: []bool{false}},
+			want: true,
+		},
+		{
+			name: "Testcase #3: Negative",
+			args: args{str: positiveStr, list: []string{"mantap", positiveStrCheck}, caseSensitive: []bool{false}},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := StringInSlice(tt.args.str, tt.args.list, tt.args.caseSensitive...); got != tt.want {
+				t.Errorf("StringInSlice() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

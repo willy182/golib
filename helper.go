@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -243,4 +244,30 @@ func RandomNumber(length int) string {
 		result[i] = NUMBERS[rand.Intn(charsLength)]
 	}
 	return string(result)
+}
+
+// StringInSlice function for checking whether string in slice
+// str string searched string
+// list []string slice
+func StringInSlice(str string, list []string, caseSensitive ...bool) bool {
+	isCaseSensitive := true
+	if len(caseSensitive) > 0 {
+		isCaseSensitive = caseSensitive[0]
+	}
+
+	if isCaseSensitive {
+		for _, v := range list {
+			if v == str {
+				return true
+			}
+		}
+	} else {
+		for _, v := range list {
+			if strings.ToLower(v) == strings.ToLower(str) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
