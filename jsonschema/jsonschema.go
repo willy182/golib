@@ -90,7 +90,7 @@ func Get(schemaID string) (*gojsonschema.Schema, error) {
 }
 
 // Validate from Go data type
-func Validate(schemaID string, input interface{}) error {
+func Validate(schemaID string, input interface{}) *golib.MultiError {
 	multiError := golib.NewMultiError()
 
 	schema, err := Get(schemaID)
@@ -104,7 +104,7 @@ func Validate(schemaID string, input interface{}) error {
 }
 
 // ValidateDocument document
-func ValidateDocument(schemaID string, jsonByte []byte) error {
+func ValidateDocument(schemaID string, jsonByte []byte) *golib.MultiError {
 	multiError := golib.NewMultiError()
 
 	schema, err := Get(schemaID)
@@ -117,7 +117,7 @@ func ValidateDocument(schemaID string, jsonByte []byte) error {
 	return validate(schema, document)
 }
 
-func validate(schema *gojsonschema.Schema, document gojsonschema.JSONLoader) error {
+func validate(schema *gojsonschema.Schema, document gojsonschema.JSONLoader) *golib.MultiError {
 	multiError := golib.NewMultiError()
 
 	result, err := schema.Validate(document)
