@@ -290,6 +290,5 @@ func GetHostURL(req *http.Request) string {
 
 // GetSelfLink function to get self link
 func GetSelfLink(req *http.Request) string {
-	fmt.Println("uri", req.RequestURI)
 	return fmt.Sprintf("%s%s", GetHostURL(req), req.RequestURI)
 }
