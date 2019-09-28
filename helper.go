@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -270,4 +271,25 @@ func StringInSlice(str string, list []string, caseSensitive ...bool) bool {
 	}
 
 	return false
+}
+
+// GetProtocol function for getting http protocol based on TLS
+// isTLS bool
+func GetProtocol(isTLS bool) string {
+	// check tls first to get protocol
+	if isTLS {
+		return "https://"
+	}
+	return "http://"
+}
+
+// GetHostURL function for getting host of any URL
+func GetHostURL(req *http.Request) string {
+	return fmt.Sprintf("%s%s", GetProtocol(req.TLS != nil), req.Host)
+}
+
+// GetSelfLink function to get self link
+func GetSelfLink(req *http.Request) string {
+	fmt.Println("uri", req.RequestURI)
+	return fmt.Sprintf("%s%s", GetHostURL(req), req.RequestURI)
 }

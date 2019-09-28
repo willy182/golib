@@ -1,6 +1,7 @@
 package golib
 
 import (
+	"net/http"
 	"strings"
 	"testing"
 
@@ -247,6 +248,89 @@ func TestStringInSlice(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := StringInSlice(tt.args.str, tt.args.list, tt.args.caseSensitive...); got != tt.want {
 				t.Errorf("StringInSlice() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetProtocol(t *testing.T) {
+	type args struct {
+		isTLS bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "test case http",
+			args: args{isTLS: false},
+			want: "http://",
+		},
+		{
+			name: "test case https",
+			args: args{isTLS: true},
+			want: "https://",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetProtocol(tt.args.isTLS); got != tt.want {
+				t.Errorf("GetProtocol() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetHostURL(t *testing.T) {
+	httpDummy := "http://bhinneka.com"
+	urlDummy, _ := http.NewRequest("GET", httpDummy, nil)
+
+	type args struct {
+		req *http.Request
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "always positive",
+			args: args{req: urlDummy},
+			want: httpDummy,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetHostURL(tt.args.req); got != tt.want {
+				t.Errorf("GetHostURL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetSelfLink(t *testing.T) {
+	httpDummy := "http://bhinneka.com"
+	reqDummy, _ := http.NewRequest("GET", httpDummy, nil)
+
+	type args struct {
+		req *http.Request
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "without secure protocol",
+			args: args{req: reqDummy},
+			want: httpDummy,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetSelfLink(tt.args.req); got != tt.want {
+				t.Errorf("GetSelfLink() = %v, want %v", got, tt.want)
 			}
 		})
 	}
