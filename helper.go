@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/jsonapi"
 )
 
 const (
@@ -18,6 +20,9 @@ const (
 	CHARS = "abcdefghijklmnopqrstuvwxyz0123456789"
 	// NUMBERS for setting short random number
 	NUMBERS = "0123456789"
+
+	// PayloadInvalid constanta
+	PayloadInvalid = "payload %s is invalid"
 
 	// this block is for validating URL format
 	email        string = "^(((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.?$"
@@ -291,4 +296,38 @@ func GetHostURL(req *http.Request) string {
 // GetSelfLink function to get self link
 func GetSelfLink(req *http.Request) string {
 	return fmt.Sprintf("%s%s", GetHostURL(req), req.RequestURI)
+}
+
+// MarshalConvertManyPayload function to convert struct response to jsonapi.manypayload so that we can add meta or link data
+func MarshalConvertManyPayload(structResponse interface{}) (payload *jsonapi.ManyPayload, err error) {
+	// set response marshal jsonapi struct
+	p, err := jsonapi.Marshal(structResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	var ok bool
+	if payload, ok = p.(*jsonapi.ManyPayload); !ok {
+		err = fmt.Errorf(PayloadInvalid, "many payload")
+		return nil, err
+	}
+
+	return
+}
+
+// MarshalConvertOnePayload function to convert struct response to jsonapi.OnePayLoad so that we can add meta or link data
+func MarshalConvertOnePayload(structResponse interface{}) (payload *jsonapi.OnePayload, err error) {
+	// set response marshal jsonapi struct
+	p, err := jsonapi.Marshal(structResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	var ok bool
+	if payload, ok = p.(*jsonapi.OnePayload); !ok {
+		err = fmt.Errorf(PayloadInvalid, "one payload")
+		return nil, err
+	}
+
+	return
 }

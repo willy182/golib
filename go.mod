@@ -6,6 +6,7 @@ require (
 	github.com/bmizerany/pq v0.0.0-20131128184720-da2b95e392c1
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/garyburd/redigo v1.6.0 // indirect
+	github.com/google/jsonapi v0.0.0-20181016150055-d0428f63eb51
 	github.com/jinzhu/gorm v1.9.10
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/opentracing/opentracing-go v1.1.0
