@@ -49,3 +49,18 @@ func (m *MultiError) Error() string {
 	}
 	return strings.Join(str, "\n")
 }
+
+// AppendMultiError constructor
+func AppendMultiError(map1, map2 *MultiError) *MultiError {
+	var mergeMultiError = make(map[string]string)
+
+	for key, val := range map1.ToMap() {
+		mergeMultiError[key] = val
+	}
+
+	for key, val := range map2.ToMap() {
+		mergeMultiError[key] = val
+	}
+
+	return &MultiError{mergeMultiError}
+}
