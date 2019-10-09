@@ -21,6 +21,7 @@ type (
 		Message string      `json:"message"`
 		Meta    interface{} `json:"meta,omitempty"`
 		Data    interface{} `json:"data,omitempty"`
+		Include interface{} `json:"include,omitempty"`
 		Errors  interface{} `json:"errors,omitempty"`
 	}
 
@@ -50,6 +51,8 @@ func NewHTTPResponseV2(code int, message string, params ...interface{}) HTTPResp
 			commonResponse.Meta = val
 		case MultiError:
 			commonResponse.Errors = val.ToMap()
+		case []interface{}:
+			commonResponse.Include = val
 		default:
 			commonResponse.Data = param
 		}
