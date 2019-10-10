@@ -64,3 +64,12 @@ func AppendMultiError(map1, map2 *MultiError) *MultiError {
 
 	return &MultiError{mergeMultiError}
 }
+
+// MultiErrorNotNill function to convert multi error from nil to not nil
+func MultiErrorNotNill(multiError *MultiError) *MultiError {
+	if multiError == nil {
+		multiError = NewMultiError()
+	}
+
+	return multiError
+}
