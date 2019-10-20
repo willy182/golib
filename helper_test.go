@@ -2,6 +2,7 @@ package golib
 
 import (
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
@@ -334,4 +335,12 @@ func TestGetSelfLink(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestIdentifyPanic(t *testing.T) {
+	os.Setenv("SERVER_ENV", "production")
+	t.Run("Test Identify Panic", func(t *testing.T) {
+		mess := IdentifyPanic("Test", "runtime error")
+		assert.Equal(t, "panic: runtime error", mess)
+	})
 }
