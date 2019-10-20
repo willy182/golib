@@ -129,9 +129,9 @@ func validate(schema *gojsonschema.Schema, document gojsonschema.JSONLoader) *go
 	if !result.Valid() {
 		for _, desc := range result.Errors() {
 			fullErrMsg := strings.Split(desc.String(), ":")
-			errMsg := strings.Replace(strings.TrimLeft(fullErrMsg[1], " "), "required", "required property", 1)
+			errMsg := strings.ToLower(strings.Replace(strings.TrimLeft(fullErrMsg[1], " "), "required", "required property", 1))
 
-			field := strings.ToUpper(strings.Replace(desc.Field(), "(root)", "property", 1))
+			field := strings.Replace(desc.Field(), "(root)", "property", 1)
 			multiError.Append(field, fmt.Errorf("%v", errMsg))
 		}
 	}
