@@ -1,1 +1,1 @@
-Golang Library Bhinneka
+Bhinneka - Golang Library
