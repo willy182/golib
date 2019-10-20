@@ -368,7 +368,7 @@ func IdentifyPanic(ctx string, rec interface{}) string {
 		branch = "master"
 	}
 
-	sign := "order-b2c"
+	sign := os.Getenv("PROJECT_NAME")
 	i := strings.Index(file, sign)
 	if i > 0 {
 		githubLink = file[i+len(sign):]
