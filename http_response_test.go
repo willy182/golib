@@ -30,6 +30,9 @@ type ExampleModel struct {
 }
 
 func TestNewHTTPResponseV2(t *testing.T) {
+	var exampleInclude []interface{}
+	exampleInclude = append(exampleInclude, "123")
+
 	multiError := NewMultiError()
 	multiError.Append("test", fmt.Errorf("error test"))
 	type args struct {
@@ -89,7 +92,27 @@ func TestNewHTTPResponseV2(t *testing.T) {
 			},
 		},
 		{
-			name: "Testcase #4: Response failed (ex: Bad Request)",
+			name: "Testcase #4: Response data list (with include)",
+			args: args{
+				code:    http.StatusOK,
+				message: "Fetch all data",
+				params: []interface{}{
+					[]ExampleModel{{OrderID: "061499700032"}, {OrderID: "061499700033"}},
+					exampleInclude,
+					Meta{Page: 1, Limit: 10, TotalPages: 10, TotalRecords: 100},
+				},
+			},
+			want: &ResponseV2{
+				Success: true,
+				Code:    200,
+				Message: "Fetch all data",
+				Meta:    Meta{Page: 1, Limit: 10, TotalPages: 10, TotalRecords: 100},
+				Data:    []ExampleModel{{OrderID: "061499700032"}, {OrderID: "061499700033"}},
+				Include: exampleInclude,
+			},
+		},
+		{
+			name: "Testcase #5: Response failed (ex: Bad Request)",
 			args: args{
 				code:    http.StatusBadRequest,
 				message: "id cannot be empty",
