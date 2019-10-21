@@ -2,3 +2,5 @@
 vendor/
 glide.*
 golib
+coverage.txt
+go.sum
