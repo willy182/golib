@@ -2,10 +2,10 @@ package tracer
 
 import (
 	"log"
+	"math"
 	"time"
 
 	opentracing "github.com/opentracing/opentracing-go"
-	jaeger "github.com/uber/jaeger-client-go"
 	config "github.com/uber/jaeger-client-go/config"
 )
 
@@ -21,8 +21,9 @@ func InitOpenTracing(agentHost, serviceName string) error {
 			BufferFlushInterval: 1 * time.Second,
 			LocalAgentHostPort:  agentHost,
 		},
+		ServiceName: serviceName,
 	}
-	tracer, _, err := cfg.New(serviceName, config.Logger(jaeger.StdLogger))
+	tracer, _, err := cfg.NewTracer(config.MaxTagValueLength(math.MaxInt32))
 	if err != nil {
 		log.Printf("ERROR: cannot init opentracing connection: %v\n", err)
 		return err
