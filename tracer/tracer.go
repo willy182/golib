@@ -68,14 +68,19 @@ func (t *opentracingTracer) Finish(tags map[string]interface{}) {
 // Log trace
 func Log(ctx context.Context, event string, payload ...interface{}) {
 	span := opentracing.SpanFromContext(ctx)
-	if span != nil {
-		if payload != nil {
-			for _, p := range payload {
-				span.LogEventWithPayload(event, toString(p))
+	if span == nil {
+		return
+	}
+
+	if payload != nil {
+		for _, p := range payload {
+			if e, ok := p.(error); ok && e != nil {
+				ext.Error.Set(span, true)
 			}
-		} else {
-			span.LogEvent(event)
+			span.LogEventWithPayload(event, toString(p))
 		}
+	} else {
+		span.LogEvent(event)
 	}
 }
 
