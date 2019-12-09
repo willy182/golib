@@ -3,7 +3,6 @@ module github.com/Bhinneka/golib
 go 1.12
 
 require (
-	github.com/bmizerany/pq v0.0.0-20131128184720-da2b95e392c1
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/garyburd/redigo v1.6.0 // indirect
 	github.com/google/jsonapi v0.0.0-20181016150055-d0428f63eb51

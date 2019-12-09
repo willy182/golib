@@ -9,9 +9,8 @@ import (
 
 	"strconv"
 
-	log "github.com/sirupsen/logrus"
-	_ "github.com/bmizerany/pq"
 	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 // dbWrite dbRead dbLogger: variable for database
