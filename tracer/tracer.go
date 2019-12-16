@@ -18,6 +18,7 @@ type Tracer interface {
 }
 
 type opentracingTracer struct {
+	parentContext         context.Context
 	parentSpan, childSpan opentracing.Span
 	hasRootSpan           bool
 }
@@ -33,15 +34,16 @@ func StartTrace(ctx context.Context, operationName string) Tracer {
 	}
 	childSpan := opentracing.GlobalTracer().StartSpan(operationName, opentracing.ChildOf(parentSpan.Context()))
 	return &opentracingTracer{
-		parentSpan:  parentSpan,
-		childSpan:   childSpan,
-		hasRootSpan: hasRootSpan,
+		parentContext: ctx,
+		parentSpan:    parentSpan,
+		childSpan:     childSpan,
+		hasRootSpan:   hasRootSpan,
 	}
 }
 
 // NewChildContext get context from child span
 func (t *opentracingTracer) NewChildContext() context.Context {
-	return opentracing.ContextWithSpan(context.Background(), t.childSpan)
+	return opentracing.ContextWithSpan(t.parentContext, t.childSpan)
 }
 
 // InjectHTTPHeader to continue tracer to http request host
