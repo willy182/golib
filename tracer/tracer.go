@@ -13,44 +13,47 @@ import (
 // Tracer for trace
 type Tracer interface {
 	NewChildContext() context.Context
+	Context() context.Context
 	InjectHTTPHeader(req *http.Request)
 	Finish(tags map[string]interface{})
 }
 
 type opentracingTracer struct {
-	parentContext         context.Context
-	parentSpan, childSpan opentracing.Span
-	hasRootSpan           bool
+	ctx  context.Context
+	span opentracing.Span
 }
 
 // StartTrace starting trace child span from parent span
 func StartTrace(ctx context.Context, operationName string) Tracer {
-	hasRootSpan := true
-	parentSpan := opentracing.SpanFromContext(ctx)
-	if parentSpan == nil {
+	span := opentracing.SpanFromContext(ctx)
+	if span == nil {
 		// init new span
-		parentSpan, _ = opentracing.StartSpanFromContext(ctx, operationName)
-		hasRootSpan = false
+		span, ctx = opentracing.StartSpanFromContext(ctx, operationName)
+	} else {
+		span = opentracing.GlobalTracer().StartSpan(operationName, opentracing.ChildOf(span.Context()))
+		ctx = opentracing.ContextWithSpan(ctx, span)
 	}
-	childSpan := opentracing.GlobalTracer().StartSpan(operationName, opentracing.ChildOf(parentSpan.Context()))
 	return &opentracingTracer{
-		parentContext: ctx,
-		parentSpan:    parentSpan,
-		childSpan:     childSpan,
-		hasRootSpan:   hasRootSpan,
+		ctx:  ctx,
+		span: span,
 	}
 }
 
 // NewChildContext get context from child span
 func (t *opentracingTracer) NewChildContext() context.Context {
-	return opentracing.ContextWithSpan(t.parentContext, t.childSpan)
+	return opentracing.ContextWithSpan(t.ctx, t.span)
+}
+
+// Context get active context
+func (t *opentracingTracer) Context() context.Context {
+	return t.ctx
 }
 
 // InjectHTTPHeader to continue tracer to http request host
 func (t *opentracingTracer) InjectHTTPHeader(req *http.Request) {
-	ext.SpanKindRPCClient.Set(t.childSpan)
-	t.childSpan.Tracer().Inject(
-		t.childSpan.Context(),
+	ext.SpanKindRPCClient.Set(t.span)
+	t.span.Tracer().Inject(
+		t.span.Context(),
 		opentracing.HTTPHeaders,
 		opentracing.HTTPHeadersCarrier(req.Header),
 	)
@@ -59,12 +62,9 @@ func (t *opentracingTracer) InjectHTTPHeader(req *http.Request) {
 // Finish trace with tags data, must in deferred function
 func (t *opentracingTracer) Finish(tags map[string]interface{}) {
 	for k, v := range tags {
-		t.childSpan.SetTag(k, toString(v))
+		t.span.SetTag(k, toString(v))
 	}
-	if !t.hasRootSpan {
-		t.parentSpan.Finish()
-	}
-	t.childSpan.Finish()
+	t.span.Finish()
 }
 
 // Log trace
@@ -93,7 +93,7 @@ func WithTrace(ctx context.Context, operationName string, tags map[string]interf
 		t.Finish(tags)
 	}()
 
-	f(t.NewChildContext())
+	f(t.Context())
 }
 
 func toString(v interface{}) (s string) {
