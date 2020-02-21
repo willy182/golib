@@ -386,3 +386,35 @@ func IdentifyPanic(ctx string, rec interface{}) string {
 	SendNotification("Panic Detected", fmt.Sprintf("*Panic source*: `%s`", githubLink), ctx, fmt.Errorf("%v", rec))
 	return fmt.Sprintf("panic: %v", rec)
 }
+
+// MaskPassword for mask password string
+func MaskPassword(s string) string {
+	splitText := strings.Split(s, "&")
+
+	var newText string
+	for i, text := range splitText {
+
+		password := strings.Index(text, "password=")
+		if password > -1 {
+			text = "password=xxxxx"
+		}
+
+		newPassword := strings.Index(text, "newPassword=")
+		if newPassword > -1 {
+			text = "newPassword=xxxxx"
+		}
+
+		rePassword := strings.Index(text, "rePassword=")
+		if rePassword > -1 {
+			text = "rePassword=xxxxx"
+		}
+
+		if i < 1 {
+			newText = text
+		} else {
+			newText = newText + "&" + text
+		}
+
+	}
+	return newText
+}

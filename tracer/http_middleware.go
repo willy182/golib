@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/Bhinneka/golib"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 )
@@ -29,7 +30,8 @@ func Middleware(h http.Handler) http.Handler {
 		}
 
 		body, _ := ioutil.ReadAll(req.Body)
-		span.SetTag("body", string(body))
+		bodyString := golib.MaskPassword(string(body))
+		span.SetTag("body", bodyString)
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(body)) // reuse body
 
 		span.SetTag("http.headers", req.Header)

@@ -344,3 +344,10 @@ func TestIdentifyPanic(t *testing.T) {
 		assert.Equal(t, "panic: runtime error", mess)
 	})
 }
+
+func TestMaskPassword(t *testing.T) {
+	t.Run("Test Mask Password", func(t *testing.T) {
+		maskPassword := MaskPassword("token=abcde&password=bcde&newPassword=abcde&rePassword=abcde")
+		assert.Equal(t, "token=abcde&password=xxxxx&newPassword=xxxxx&rePassword=xxxxx", maskPassword)
+	})
+}
