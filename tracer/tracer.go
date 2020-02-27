@@ -86,7 +86,7 @@ func Log(ctx context.Context, event string, payload ...interface{}) {
 	}
 }
 
-// WithTrace closure with child context
+// WithTrace closure with child context (deprecated)
 func WithTrace(ctx context.Context, operationName string, tags map[string]interface{}, f func(context.Context)) {
 	t := StartTrace(ctx, operationName)
 	defer func() {
@@ -94,6 +94,18 @@ func WithTrace(ctx context.Context, operationName string, tags map[string]interf
 	}()
 
 	f(t.Context())
+}
+
+// WithTraceFunc functional with context and tags in function params
+func WithTraceFunc(ctx context.Context, operationName string, fn func(context.Context, map[string]interface{})) {
+	t := StartTrace(ctx, operationName)
+	tags := make(map[string]interface{})
+
+	defer func() {
+		t.Finish(tags)
+	}()
+
+	fn(t.Context(), tags)
 }
 
 func toString(v interface{}) (s string) {
