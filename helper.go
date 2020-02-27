@@ -38,7 +38,6 @@ const (
 	urlPattern   string = `^` + urlSchema + `?` + urlUsername + `?` + `((` + urlIP + `|(\[` + ip + `\])|(([a-zA-Z0-9]([a-zA-Z0-9-_]+)?[a-zA-Z0-9]([-\.][a-zA-Z0-9]+)*)|(` + urlSubdomain + `?))?(([a-zA-Z\x{00a1}-\x{ffff}0-9]+-?-?)*[a-zA-Z\x{00a1}-\x{ffff}0-9]+)(?:\.([a-zA-Z\x{00a1}-\x{ffff}]{1,}))?))\.?` + urlPort + `?` + urlPath + `?$`
 	area         string = `^\+\d{1,5}$`
 	phone        string = `^\d{5,}$`
-	alphaNumeric string = `^[A-Za-z0-9][A-Za-z0-9 ._-]*$`
 )
 
 var (
@@ -57,8 +56,6 @@ var (
 	areaRegexp = regexp.MustCompile(area)
 	// telpRegexp regex for phone number
 	phoneRegexp = regexp.MustCompile(phone)
-	// alphaNumericRegexp regex for validate uri
-	alphaNumericRegexp = regexp.MustCompile(alphaNumeric)
 )
 
 // ValidateEmail function for validating email
@@ -93,12 +90,26 @@ func ValidatePhoneAreaNumber(str string) error {
 	return nil
 }
 
-// ValidateAlphaNumeric function for checking alpha numeric string
-func ValidateAlphaNumeric(str string) bool {
-	if !alphaNumericRegexp.MatchString(str) {
-		return false
+// StringArrayReplace function for replacing whether string in array
+// str string searched string
+// list []string array
+func StringArrayReplace(str string, listFind, listReplace []string) string {
+	for i, v := range listFind {
+		if strings.Contains(str, v) {
+			str = strings.Replace(str, v, listReplace[i], -1)
+		}
 	}
-	return true
+	return str
+}
+
+// ValidateMaxInput function for validating maximum input
+func ValidateMaxInput(input string, limit int) error {
+	if len(input) > limit {
+		err := errors.New(" value is too long")
+		return err
+	}
+
+	return nil
 }
 
 // ValidateNumeric function for check valid numeric
@@ -417,4 +428,28 @@ func MaskPassword(s string) string {
 
 	}
 	return newText
+}
+
+// ValidateLatinOnly func for check valid latin only
+func ValidateLatinOnly(str string) bool {
+	var uppercase, lowercase, num, allowed, symbol int
+	for _, r := range str {
+		if r >= 65 && r <= 90 { //code ascii for [A-Z]
+			uppercase = +1
+		} else if r >= 97 && r <= 122 { //code ascii for [a-z]
+			lowercase = +1
+		} else if r >= 48 && r <= 57 { //code ascii for [0-9]
+			num = +1
+		} else if r >= 32 && r <= 47 || r >= 58 && r <= 64 || r >= 91 && r <= 96 || r >= 123 && r <= 126 {
+			allowed = +1 //code ascii for [space, coma, ., !, ", #, $, %, &, ', (, ), *, +, -, /, :, ;, <, =, >, ?, @, [, \, ], ^, _, `, {, |, }, ~]
+		} else {
+			symbol = +1
+		}
+	}
+
+	if symbol > 0 {
+		return false
+	}
+
+	return uppercase >= 1 || lowercase >= 1 || num >= 1 || allowed >= 0
 }

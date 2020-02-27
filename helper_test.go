@@ -116,27 +116,6 @@ func TestValidatePhoneAreaNumber(t *testing.T) {
 	}
 }
 
-func TestValidateAlphaNumeric(t *testing.T) {
-	var (
-		alpha string
-	)
-
-	alpha = "Some days are beautiful."
-	if !ValidateAlphaNumeric(alpha) {
-		t.Fatal("testing valid alpha numeric is not valid")
-	}
-
-	alpha = "Some days are beautiful. :) :*"
-	if ValidateAlphaNumeric(alpha) {
-		t.Fatal("testing 1st invalid alpha numeric is not valid")
-	}
-
-	alpha = `<img src="http://example.com/image.jpg" />`
-	if ValidateAlphaNumeric(alpha) {
-		t.Fatal("testing 2nd invalid alpha numeric is not valid")
-	}
-}
-
 func TestValidateNumeric(t *testing.T) {
 	t.Run("Test Validate Numeric", func(t *testing.T) {
 		boolFalse := ValidateNumeric("1.0.1")
@@ -349,5 +328,49 @@ func TestMaskPassword(t *testing.T) {
 	t.Run("Test Mask Password", func(t *testing.T) {
 		maskPassword := MaskPassword("token=abcde&password=bcde&newPassword=abcde&rePassword=abcde")
 		assert.Equal(t, "token=abcde&password=xxxxx&newPassword=xxxxx&rePassword=xxxxx", maskPassword)
+	})
+}
+
+func TestValidateLatinOnly(t *testing.T) {
+	t.Run("Test Validate Latin Only", func(t *testing.T) {
+		boolFalse := ValidateLatinOnly("스칼 k4nj1 k0r34")
+		assert.False(t, boolFalse)
+
+		boolTrue := ValidateLatinOnly("okeAJ 123 ~!@#")
+		assert.True(t, boolTrue)
+
+		boolTrue = ValidateLatinOnly("okeAJ")
+		assert.True(t, boolTrue)
+	})
+}
+
+func TestStringArrayReplace(t *testing.T) {
+	t.Run("Test Validate Latin Only", func(t *testing.T) {
+		find := []string{"##YEAR##", "##FULLNAME##", "##URL##"}
+		replacer := []string{"2012", "member", "http://asd.co"}
+		content := StringArrayReplace("asdsad", find, replacer)
+		assert.Equal(t, "asdsad", content)
+
+		content2 := StringArrayReplace("##YEAR## asdsad", find, replacer)
+		assert.Equal(t, "2012 asdsad", content2)
+	})
+}
+
+func TestValidateMaxInput(t *testing.T) {
+	t.Run("Test Validate Latin Only", func(t *testing.T) {
+		shortInputString := "Game of Thrones"
+		tooLongInputString := `Let's say we require an item from our drop down list, but instead we get a value fabricated by hackers
+		Let's say we require an item from our drop down list, but instead we get a value fabricated by hackers
+		Let's say we require an item from our drop down list, but instead we get a value fabricated by hackers
+		Let's say we require an item from our drop down list, but instead we get a value fabricated by hackers
+		Let's say we require an item from our drop down list, but instead we get a value fabricated by hackers
+		Let's say we require an item from our drop down list, but instead we get a value fabricated by hackers
+		Let's say we require an item from our drop down list, but instead we get a value fabricated by hackers`
+
+		err := ValidateMaxInput(shortInputString, 250)
+		assert.NoError(t, err, err)
+
+		err = ValidateMaxInput(tooLongInputString, 250)
+		assert.Error(t, err, err)
 	})
 }
