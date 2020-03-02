@@ -3,8 +3,10 @@ package tracer
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	opentracing "github.com/opentracing/opentracing-go"
 	ext "github.com/opentracing/opentracing-go/ext"
@@ -123,4 +125,20 @@ func toString(v interface{}) (s string) {
 		s = string(b)
 	}
 	return
+}
+
+// GetTraceID func
+func GetTraceID(ctx context.Context) string {
+	span := opentracing.SpanFromContext(ctx)
+	if span == nil {
+		return ""
+	}
+
+	traceID := fmt.Sprintf("%+v", span)
+	splits := strings.Split(traceID, ":")
+	if len(splits) > 0 {
+		return splits[0]
+	}
+
+	return traceID
 }
