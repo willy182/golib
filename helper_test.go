@@ -374,3 +374,26 @@ func TestValidateMaxInput(t *testing.T) {
 		assert.Error(t, err, err)
 	})
 }
+
+func TestCamelToLowerCase(t *testing.T) {
+	type args struct {
+		str string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "Testcase #1",
+			args: args{str: "ABcde"},
+			want: "a bcde",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := CamelToLowerCase(tt.args.str)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}

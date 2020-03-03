@@ -146,3 +146,40 @@ func validate(schema *gojsonschema.Schema, document gojsonschema.JSONLoader) *go
 
 	return nil
 }
+
+// ValidateTemp from Go data type for response single error
+func ValidateTemp(schemaID string, input interface{}) error {
+
+	schema, err := Get(schemaID)
+
+	if err != nil {
+		return err
+	}
+
+	document := gojsonschema.NewGoLoader(input)
+	return validateTemp(schema, document)
+}
+
+// ValidateTemp from Go data type for response single error
+func validateTemp(schema *gojsonschema.Schema, document gojsonschema.JSONLoader) error {
+
+	result, err := schema.Validate(document)
+	if err != nil {
+		return err
+	}
+
+	if !result.Valid() {
+		for _, desc := range result.Errors() {
+			message := golib.CamelToLowerCase(desc.Description())
+
+			if desc.Field() != "(root)" {
+				field := golib.CamelToLowerCase(desc.Field())
+				message = field + " " + golib.CamelToLowerCase(desc.Description())
+			}
+
+			return errors.New(message)
+		}
+	}
+
+	return nil
+}

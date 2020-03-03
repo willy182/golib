@@ -56,6 +56,8 @@ var (
 	areaRegexp = regexp.MustCompile(area)
 	// telpRegexp regex for phone number
 	phoneRegexp = regexp.MustCompile(phone)
+	// camel regex for string camelcase
+	camel = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
 )
 
 // ValidateEmail function for validating email
@@ -452,4 +454,18 @@ func ValidateLatinOnly(str string) bool {
 	}
 
 	return uppercase >= 1 || lowercase >= 1 || num >= 1 || allowed >= 0
+}
+
+// CamelToLowerCase func for replace camel to lower case
+func CamelToLowerCase(s string) string {
+	var a []string
+	for _, sub := range camel.FindAllStringSubmatch(s, -1) {
+		if sub[1] != "" {
+			a = append(a, sub[1])
+		}
+		if sub[2] != "" {
+			a = append(a, sub[2])
+		}
+	}
+	return strings.ToLower(strings.Join(a, " "))
 }
