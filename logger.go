@@ -8,10 +8,8 @@ import (
 	"time"
 
 	"encoding/json"
-	"log/syslog"
 
 	log "github.com/sirupsen/logrus"
-	logrusSyslog "github.com/sirupsen/logrus/hooks/syslog"
 )
 
 // These are the different logging levels. You can set the logging level to log
@@ -102,15 +100,6 @@ func Log(level Level, message string, context string, scope string) {
 		}
 	}()
 
-	log.SetFormatter(&log.JSONFormatter{})
-	syslogOutput, err := logrusSyslog.NewSyslogHook("", "", syslog.LOG_INFO, LogTag)
-	log.AddHook(syslogOutput)
-
-	if err != nil {
-		return
-	}
-	defer syslogOutput.Writer.Close()
-
 	entry := LogContext(context, scope)
 	switch level {
 	case DebugLevel:
@@ -135,14 +124,6 @@ func LogError(err error, context string, messageData interface{}) {
 			fmt.Println(r)
 		}
 	}()
-
-	log.SetFormatter(&log.JSONFormatter{})
-	syslogOutput, errSys := logrusSyslog.NewSyslogHook("", "", syslog.LOG_INFO, LogTag)
-	log.AddHook(syslogOutput)
-	if errSys != nil {
-		return
-	}
-	defer syslogOutput.Writer.Close()
 
 	entry := log.WithFields(log.Fields{
 		"topic":      TOPIC,
