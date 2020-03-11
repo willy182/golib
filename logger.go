@@ -94,46 +94,50 @@ func LogContext(c string, s string) *log.Entry {
 // context string context of log
 // scope string scope of log
 func Log(level Level, message string, context string, scope string) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println(r)
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println(r)
+			}
+		}()
+
+		entry := LogContext(context, scope)
+		switch level {
+		case DebugLevel:
+			entry.Debug(message)
+		case InfoLevel:
+			entry.Info(message)
+		case WarnLevel:
+			entry.Warn(message)
+		case ErrorLevel:
+			entry.Error(message)
+		case FatalLevel:
+			entry.Fatal(message)
+		case PanicLevel:
+			entry.Panic(message)
 		}
 	}()
-
-	entry := LogContext(context, scope)
-	switch level {
-	case DebugLevel:
-		entry.Debug(message)
-	case InfoLevel:
-		entry.Info(message)
-	case WarnLevel:
-		entry.Warn(message)
-	case ErrorLevel:
-		entry.Error(message)
-	case FatalLevel:
-		entry.Fatal(message)
-	case PanicLevel:
-		entry.Panic(message)
-	}
 }
 
 // LogError logging error
 func LogError(err error, context string, messageData interface{}) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println(r)
-		}
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println(r)
+			}
+		}()
+
+		entry := log.WithFields(log.Fields{
+			"topic":      TOPIC,
+			"context":    context,
+			"error":      err,
+			"server_env": Env,
+		})
+
+		jsonStr, _ := json.Marshal(messageData)
+		entry.Error(string(jsonStr))
 	}()
-
-	entry := log.WithFields(log.Fields{
-		"topic":      TOPIC,
-		"context":    context,
-		"error":      err,
-		"server_env": Env,
-	})
-
-	jsonStr, _ := json.Marshal(messageData)
-	entry.Error(string(jsonStr))
 }
 
 // ResultLogger result logger interface
