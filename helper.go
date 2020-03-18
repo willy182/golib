@@ -474,15 +474,11 @@ func CamelToLowerCase(s string) string {
 func MergeMaps(map1, map2 map[string]interface{}) map[string]interface{} {
 	result := make(map[string]interface{})
 	for k, v := range map1 {
-		if _, ok := map1[k]; ok {
-			result[k] = v
-		}
+		result[k] = v
 	}
 
 	for k, v := range map2 {
-		if _, ok := map2[k]; ok {
-			result[k] = v
-		}
+		result[k] = v
 	}
 
 	return result
