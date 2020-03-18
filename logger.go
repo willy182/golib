@@ -79,13 +79,24 @@ func InitLogger(topic, tag, env string) {
 // LogContext function for logging the context of echo
 // c string context
 // s string scope
-func LogContext(c string, s string) *log.Entry {
-	return log.WithFields(log.Fields{
+func LogContext(c string, s string, customeTags []map[string]interface{}) *log.Entry {
+	maps := make(map[string]interface{})
+	for _, m := range customeTags {
+		for k, v := range m {
+			maps[k] = v
+		}
+	}
+
+	map1 := log.Fields{
 		"topic":      TOPIC,
 		"context":    c,
 		"scope":      s,
 		"server_env": Env,
-	})
+	}
+
+	result := MergeMaps(map1, maps)
+
+	return log.WithFields(result)
 }
 
 // Log function for returning entry type
@@ -93,7 +104,7 @@ func LogContext(c string, s string) *log.Entry {
 // message string message of log
 // context string context of log
 // scope string scope of log
-func Log(level Level, message string, context string, scope string) {
+func Log(level Level, message string, context string, scope string, customeTags ...map[string]interface{}) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
@@ -101,7 +112,7 @@ func Log(level Level, message string, context string, scope string) {
 			}
 		}()
 
-		entry := LogContext(context, scope)
+		entry := LogContext(context, scope, customeTags)
 		switch level {
 		case DebugLevel:
 			entry.Debug(message)

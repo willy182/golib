@@ -3,6 +3,7 @@ package golib
 import (
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -394,6 +395,45 @@ func TestCamelToLowerCase(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := CamelToLowerCase(tt.args.str)
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestMergeMaps(t *testing.T) {
+	type args struct {
+		map1 map[string]interface{}
+		map2 map[string]interface{}
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]interface{}
+	}{
+		{
+			name: "case 1",
+			args: args{
+				map1: map[string]interface{}{
+					"one": 1,
+					"two": 2,
+				},
+				map2: map[string]interface{}{
+					"three": 3,
+					"four":  4,
+				},
+			},
+			want: map[string]interface{}{
+				"one":   1,
+				"two":   2,
+				"three": 3,
+				"four":  4,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := MergeMaps(tt.args.map1, tt.args.map2); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MergeMaps() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
