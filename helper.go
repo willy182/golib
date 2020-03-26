@@ -1,6 +1,7 @@
 package golib
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -10,6 +11,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/jsonapi"
@@ -58,7 +60,16 @@ var (
 	phoneRegexp = regexp.MustCompile(phone)
 	// camel regex for string camelcase
 	camel = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
+
+	// domains for list domain validate
+	domains = new(collection)
 )
+
+type collection struct {
+	items map[string]struct{}
+	err   error
+	once  sync.Once
+}
 
 // ValidateEmail function for validating email
 func ValidateEmail(email string) error {
@@ -482,4 +493,46 @@ func MergeMaps(map1, map2 map[string]interface{}) map[string]interface{} {
 	}
 
 	return result
+}
+
+// IsDisabledEmail for split and validate email domain
+func IsDisabledEmail(email string) bool {
+	parts := strings.SplitN(email, "@", 2)
+	if len(parts) != 2 {
+		return false
+	}
+	return IsDisabledDomain(parts[1])
+}
+
+// IsDisabledDomain for validate domain
+func IsDisabledDomain(domain string) bool {
+	domains.once.Do(func() { domains.loadFromFile("domains.txt") })
+	if domains.err != nil {
+		return false
+	}
+	domain = strings.TrimSpace(domain)
+	return domains.hasValidDomain(strings.ToLower(domain))
+}
+
+func (c *collection) hasValidDomain(item string) bool {
+	_, ok := c.items[item]
+	return ok
+}
+
+func (c *collection) loadFromFile(filename string) {
+	file, err := os.Open(filename)
+	if err != nil {
+		c.err = fmt.Errorf("ded: could not open %q file: %v", filename, err)
+	}
+	defer file.Close()
+
+	c.items = make(map[string]struct{})
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		domain := scanner.Text()
+		if domain == "" {
+			continue
+		}
+		c.items[domain] = struct{}{}
+	}
 }
