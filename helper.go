@@ -1,7 +1,6 @@
 package golib
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -506,7 +505,7 @@ func IsDisabledEmail(email string) bool {
 
 // IsDisabledDomain for validate domain
 func IsDisabledDomain(domain string) bool {
-	domains.once.Do(func() { domains.loadFromFile("domains.txt") })
+	domains.once.Do(func() { domains.loadDomainList() })
 	if domains.err != nil {
 		return false
 	}
@@ -519,20 +518,9 @@ func (c *collection) hasValidDomain(item string) bool {
 	return ok
 }
 
-func (c *collection) loadFromFile(filename string) {
-	file, err := os.Open(filename)
-	if err != nil {
-		c.err = fmt.Errorf("ded: could not open %q file: %v", filename, err)
-	}
-	defer file.Close()
-
+func (c *collection) loadDomainList() {
 	c.items = make(map[string]struct{})
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		domain := scanner.Text()
-		if domain == "" {
-			continue
-		}
-		c.items[domain] = struct{}{}
+	for _, value := range DisposableDomains {
+		c.items[value] = struct{}{}
 	}
 }
