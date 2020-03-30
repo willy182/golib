@@ -16,7 +16,8 @@ func BindQueryParam(u *url.URL, target interface{}) error {
 	}
 	refValue = refValue.Elem()
 	q := make(map[string]string)
-	for _, r := range strings.Split(u.RawQuery, "&") {
+	urlPathUnscape, _ := url.PathUnescape(u.RawQuery)
+	for _, r := range strings.Split(urlPathUnscape, "&") {
 		sp := strings.Split(r, "=")
 		if len(sp) > 1 {
 			q[sp[0]] = sp[1]
