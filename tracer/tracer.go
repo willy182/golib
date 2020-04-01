@@ -16,13 +16,15 @@ import (
 type Tracer interface {
 	NewChildContext() context.Context
 	Context() context.Context
+	Tags() map[string]interface{}
 	InjectHTTPHeader(req *http.Request)
-	Finish(tags map[string]interface{})
+	Finish(tags ...map[string]interface{})
 }
 
 type opentracingTracer struct {
 	ctx  context.Context
 	span opentracing.Span
+	tags map[string]interface{}
 }
 
 // StartTrace starting trace child span from parent span
@@ -41,7 +43,7 @@ func StartTrace(ctx context.Context, operationName string) Tracer {
 	}
 }
 
-// NewChildContext get context from child span
+// NewChildContext get context from child span (deprecated)
 func (t *opentracingTracer) NewChildContext() context.Context {
 	return opentracing.ContextWithSpan(t.ctx, t.span)
 }
@@ -49,6 +51,12 @@ func (t *opentracingTracer) NewChildContext() context.Context {
 // Context get active context
 func (t *opentracingTracer) Context() context.Context {
 	return t.ctx
+}
+
+// Tags create tags in tracer span
+func (t *opentracingTracer) Tags() map[string]interface{} {
+	t.tags = make(map[string]interface{})
+	return t.tags
 }
 
 // InjectHTTPHeader to continue tracer to http request host
@@ -61,12 +69,23 @@ func (t *opentracingTracer) InjectHTTPHeader(req *http.Request) {
 	)
 }
 
-// Finish trace with tags data, must in deferred function
-func (t *opentracingTracer) Finish(tags map[string]interface{}) {
-	for k, v := range tags {
+// Finish trace with additional tags data, must in deferred function
+func (t *opentracingTracer) Finish(tags ...map[string]interface{}) {
+	defer t.span.Finish()
+
+	if tags != nil && t.tags == nil {
+		t.tags = make(map[string]interface{})
+	}
+
+	for _, tag := range tags {
+		for k, v := range tag {
+			t.tags[k] = v
+		}
+	}
+
+	for k, v := range t.tags {
 		t.span.SetTag(k, toString(v))
 	}
-	t.span.Finish()
 }
 
 // Log trace
@@ -101,13 +120,9 @@ func WithTrace(ctx context.Context, operationName string, tags map[string]interf
 // WithTraceFunc functional with context and tags in function params
 func WithTraceFunc(ctx context.Context, operationName string, fn func(context.Context, map[string]interface{})) {
 	t := StartTrace(ctx, operationName)
-	tags := make(map[string]interface{})
+	defer t.Finish()
 
-	defer func() {
-		t.Finish(tags)
-	}()
-
-	fn(t.Context(), tags)
+	fn(t.Context(), t.Tags())
 }
 
 func toString(v interface{}) (s string) {
