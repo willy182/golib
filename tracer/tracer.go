@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"strconv"
 	"strings"
 
@@ -156,4 +157,16 @@ func GetTraceID(ctx context.Context) string {
 	}
 
 	return traceID
+}
+
+// SetError func
+func SetError(ctx context.Context, err error) {
+	span := opentracing.SpanFromContext(ctx)
+	if span == nil || err == nil {
+		return
+	}
+
+	ext.Error.Set(span, true)
+	span.SetTag("error.message", err.Error())
+	span.SetTag("stacktrace", string(debug.Stack()))
 }
