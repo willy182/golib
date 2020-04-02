@@ -19,6 +19,7 @@ type Tracer interface {
 	Context() context.Context
 	Tags() map[string]interface{}
 	InjectHTTPHeader(req *http.Request)
+	SetError(err error)
 	Finish(tags ...map[string]interface{})
 }
 
@@ -68,6 +69,11 @@ func (t *opentracingTracer) InjectHTTPHeader(req *http.Request) {
 		opentracing.HTTPHeaders,
 		opentracing.HTTPHeadersCarrier(req.Header),
 	)
+}
+
+// SetError set error in span
+func (t *opentracingTracer) SetError(err error) {
+	SetError(t.ctx, err)
 }
 
 // Finish trace with additional tags data, must in deferred function
