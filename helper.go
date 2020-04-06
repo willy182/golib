@@ -1,6 +1,7 @@
 package golib
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -68,6 +69,11 @@ type collection struct {
 	items map[string]struct{}
 	err   error
 	once  sync.Once
+}
+
+type commonJSONAuth struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // ValidateEmail function for validating email
@@ -523,4 +529,17 @@ func (c *collection) loadDomainList() {
 	for _, value := range DisposableDomains {
 		c.items[value] = struct{}{}
 	}
+}
+
+// MaskJSONPassword mask password sent on JSON format
+func MaskJSONPassword(body []byte) []byte {
+	dest := commonJSONAuth{}
+	if err := json.Unmarshal(body, &dest); err == nil {
+		if dest.Email != "" && dest.Password != "" {
+			dest.Password = "xxxxx"
+			out, _ := json.Marshal(dest)
+			return out
+		}
+	}
+	return body
 }

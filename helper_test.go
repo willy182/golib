@@ -456,3 +456,16 @@ func TestValidateDomain(t *testing.T) {
 		assert.False(t, boolFalse)
 	})
 }
+
+func TestMaskJSONPassword(t *testing.T) {
+	t.Run("Test masking json password", func(t *testing.T) {
+		password := `{"email": "pian.mutakin@bhinneka.com","password": "somepassword"}`
+		mm := MaskJSONPassword([]byte(password))
+		assert.NotContains(t, string(mm), "somepassword")
+		assert.Contains(t, string(mm), "xxxxx")
+
+		password = `{"somefield": "somevalue", "someotherfield": "somepassword"}`
+		mp := MaskJSONPassword([]byte(password))
+		assert.Contains(t, string(mp), "somepassword")
+	})
+}
