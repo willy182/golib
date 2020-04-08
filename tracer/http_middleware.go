@@ -31,6 +31,7 @@ func Middleware(h http.Handler) http.Handler {
 
 		body, _ := ioutil.ReadAll(req.Body)
 		bodyString := golib.MaskPassword(string(body))
+		bodyString = string(golib.MaskJSONPassword(body))
 		span.SetTag("body", bodyString)
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(body)) // reuse body
 
