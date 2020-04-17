@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/jsonapi"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -467,5 +468,37 @@ func TestMaskJSONPassword(t *testing.T) {
 		password = `{"somefield": "somevalue", "someotherfield": "somepassword"}`
 		mp := MaskJSONPassword([]byte(password))
 		assert.Contains(t, string(mp), "somepassword")
+	})
+}
+
+func TestMarshalConvertManyPayload(t *testing.T) {
+	t.Run("ERROR MARSHALL ConvertManyPayload", func(t *testing.T) {
+		_, err := MarshalConvertManyPayload(make(chan int, 0))
+		assert.Error(t, err)
+	})
+
+	t.Run("INVALID PAYLOAD ConvertManyPayload", func(t *testing.T) {
+		payload := &jsonapi.ManyPayload{}
+		_, err := MarshalConvertManyPayload(payload)
+		assert.Error(t, err)
+	})
+}
+
+func TestMarshalConvertOnePayload(t *testing.T) {
+
+	t.Run("ERROR MARSHALL ConvertOnePayload", func(t *testing.T) {
+		_, err := MarshalConvertOnePayload(make(chan int, 0))
+		assert.Error(t, err)
+	})
+
+	t.Run("INVALID PAYLOAD ConvertOnePayload", func(t *testing.T) {
+		_, err := MarshalConvertOnePayload(make([]string, 0))
+		assert.Error(t, err)
+	})
+
+	t.Run("SUCCESS PAYLOAD ConvertOnePayloa", func(t *testing.T) {
+		payload := &jsonapi.ManyPayload{}
+		_, err := MarshalConvertOnePayload(payload)
+		assert.NoError(t, err)
 	})
 }

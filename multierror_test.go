@@ -1,6 +1,7 @@
 package golib
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -54,6 +55,13 @@ func TestAppendMultiError(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("APPEND EXISTING KEY", func(t *testing.T) {
+		m := NewMultiError()
+		m.errs["test"] = "test"
+		m.Append("test", errors.New("testing"))
+		assert.Equal(t, "test; testing", m.errs["test"])
+	})
 }
 
 func TestMultiErrorNotNill(t *testing.T) {
@@ -78,4 +86,12 @@ func TestMultiErrorNotNill(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMultiError_Clear(t *testing.T) {
+	t.Run("CLEAR MULTI ERROR", func(t *testing.T) {
+		m := NewMultiError()
+		m.Clear()
+		assert.Equal(t, 0, len(m.errs))
+	})
 }

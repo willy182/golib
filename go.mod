@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.37.4 // indirect
+	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/garyburd/redigo v1.6.0 // indirect
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7
