@@ -3,6 +3,7 @@ package golib
 import (
 	"errors"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +11,8 @@ import (
 
 func Test_getCaller(t *testing.T) {
 	t.Run("TEST getCaller", func(t *testing.T) {
-		assert.Equal(t, "runtime.goexit:1358", getCaller())
+		b := strings.Contains(getCaller(), "runtime")
+		assert.Equal(t, true, b)
 	})
 }
 
