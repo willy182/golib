@@ -3,8 +3,8 @@ package golib
 import (
 	"testing"
 
+	"github.com/go-redis/redis"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/redis.v4"
 )
 
 func TestRedisClient(t *testing.T) {

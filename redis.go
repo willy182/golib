@@ -1,12 +1,13 @@
 package golib
 
 import (
+	"crypto/tls"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
 
-	"gopkg.in/redis.v4"
+	"github.com/go-redis/redis"
 )
 
 // redisClient variable for setting redis client
@@ -26,6 +27,15 @@ func RedisClient(node string) *redis.Client {
 	maxRetries, _ := strconv.Atoi(os.Getenv(fmt.Sprintf("REDIS_%s_MAX_RETRIES", node)))
 	timeout, _ := strconv.Atoi(os.Getenv(fmt.Sprintf("REDIS_%s_IDLE_TIMEOUT", node)))
 	idleTimeout := time.Duration(timeout)
+	tlsSecured, _ := strconv.ParseBool(os.Getenv(fmt.Sprintf("REDIS_%s_TLS", node)))
+
+	var conf *tls.Config
+
+	if tlsSecured {
+		conf = &tls.Config{
+			InsecureSkipVerify: tlsSecured,
+		}
+	}
 
 	client := redis.NewClient(&redis.Options{
 		Addr:        host,
@@ -33,6 +43,7 @@ func RedisClient(node string) *redis.Client {
 		DB:          db,
 		MaxRetries:  maxRetries,
 		IdleTimeout: time.Second * idleTimeout,
+		TLSConfig:   conf,
 	})
 
 	redisClient[node] = client
